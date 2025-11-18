@@ -306,6 +306,63 @@ document.addEventListener('keyup', (e) => {
     keys[e.key] = false;
 });
 
+// --- Controles táctiles: botones y arrastre sobre canvas ---
+const leftBtn = document.getElementById('leftBtn');
+const rightBtn = document.getElementById('rightBtn');
+const mobileControls = document.getElementById('mobileControls');
+
+// Bind táctil a botones (mantener presionado)
+if (leftBtn && rightBtn) {
+    leftBtn.addEventListener('touchstart', (e) => { e.preventDefault(); keys['ArrowLeft'] = true; });
+    leftBtn.addEventListener('touchend',   (e) => { e.preventDefault(); keys['ArrowLeft'] = false; });
+    leftBtn.addEventListener('touchcancel',(e) => { keys['ArrowLeft'] = false; });
+
+    rightBtn.addEventListener('touchstart', (e) => { e.preventDefault(); keys['ArrowRight'] = true; });
+    rightBtn.addEventListener('touchend',   (e) => { e.preventDefault(); keys['ArrowRight'] = false; });
+    rightBtn.addEventListener('touchcancel',(e) => { keys['ArrowRight'] = false; });
+}
+
+// Permitir mover el gatito tocando/arrastrando sobre el canvas
+let activeTouchId = null;
+canvas.addEventListener('touchstart', (e) => {
+    if (e.touches.length > 0) {
+        const t = e.touches[0];
+        activeTouchId = t.identifier;
+        const rect = canvas.getBoundingClientRect();
+        const x = t.clientX - rect.left;
+        cat.x = Math.max(0, Math.min(canvas.width - cat.width, x - cat.width / 2));
+    }
+}, { passive: false });
+
+canvas.addEventListener('touchmove', (e) => {
+    for (let i = 0; i < e.touches.length; i++) {
+        const t = e.touches[i];
+        if (activeTouchId === null || t.identifier === activeTouchId) {
+            const rect = canvas.getBoundingClientRect();
+            const x = t.clientX - rect.left;
+            cat.x = Math.max(0, Math.min(canvas.width - cat.width, x - cat.width / 2));
+            e.preventDefault();
+            break;
+        }
+    }
+}, { passive: false });
+
+canvas.addEventListener('touchend', (e) => {
+    activeTouchId = null;
+    // Reiniciar estados de botones táctiles
+    keys['ArrowLeft'] = false;
+    keys['ArrowRight'] = false;
+}, { passive: true });
+
+// Mostrar controles móviles si el dispositivo es táctil (opcional)
+function detectAndShowMobileControls() {
+    if ('ontouchstart' in window && mobileControls) {
+        // quitar la clase hidden para que CSS los muestre en mobile
+        mobileControls.classList.remove('hidden');
+    }
+}
+detectAndShowMobileControls();
+
 // Función para generar un objeto
 function spawnObject() {
     let isGood;

@@ -41,6 +41,13 @@
             <button onclick="startGame()">Comenzar Juego</button>
         </div>
         <canvas id="gameCanvas" class="hidden"></canvas>
+
+        <!-- Controles móviles: se muestran vía CSS en pantallas pequeñas -->
+        <div id="mobileControls" class="mobile-controls hidden" aria-hidden="true">
+            <button id="leftBtn" class="control-btn" aria-label="Mover izquierda">◀</button>
+            <button id="rightBtn" class="control-btn" aria-label="Mover derecha">▶</button>
+        </div>
+
         <div id="gameOver" class="game-over hidden">
             <h2>¡Has perdido!</h2>
             <p>Las deudas buenas se consideran una inversión para el futuro, las deudas malas pierden su valor.</p>
