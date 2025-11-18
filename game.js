@@ -349,10 +349,34 @@ canvas.addEventListener('touchmove', (e) => {
 
 canvas.addEventListener('touchend', (e) => {
     activeTouchId = null;
-    // Reiniciar estados de botones táctiles
     keys['ArrowLeft'] = false;
     keys['ArrowRight'] = false;
 }, { passive: true });
+
+// --- Nuevas funciones para mostrar/ocultar y posicionar los controles móviles ---
+function isTouchDevice() {
+    return (('ontouchstart' in window) || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0);
+}
+
+function showMobileControlsUnderInstructions() {
+    if (!isTouchDevice() || !mobileControls) return;
+    const instructionsEl = document.querySelector('.instructions');
+    if (instructionsEl) {
+        // insertar justo después del elemento de instrucciones
+        instructionsEl.insertAdjacentElement('afterend', mobileControls);
+        mobileControls.classList.remove('hidden');
+    } else {
+        // fallback: si no existe instrucciones, colocarlos al final del container
+        const container = document.querySelector('.container');
+        if (container) container.appendChild(mobileControls);
+        mobileControls.classList.remove('hidden');
+    }
+}
+
+function hideMobileControls() {
+    if (!mobileControls) return;
+    mobileControls.classList.add('hidden');
+}
 
 // Mostrar controles móviles si el dispositivo es táctil (opcional)
 function detectAndShowMobileControls() {
@@ -425,6 +449,7 @@ function updateScore(points) {
 function gameOver() {
     gameRunning = false;
     document.getElementById('gameOver').classList.remove('hidden');
+    hideMobileControls();
 }
 
 // Iniciar juego
@@ -448,6 +473,9 @@ function startGame() {
     document.getElementById('gameCanvas').classList.remove('hidden');
     document.querySelector('.game-info').classList.remove('hidden');
     document.querySelector('.instructions').classList.remove('hidden');
+
+    // mostrar controles táctiles solo en dispositivos táctiles y colocarlos debajo de las instrucciones
+    showMobileControlsUnderInstructions();
     gameLoop();
 }
 
@@ -465,6 +493,8 @@ function restartGame() {
     document.getElementById('score').textContent = score;
     document.getElementById('missed').textContent = missed;
     document.getElementById('gameOver').classList.add('hidden');
+    document.querySelector('.instructions').classList.remove('hidden');
+    showMobileControlsUnderInstructions();
     gameLoop();
 }
 
@@ -476,87 +506,7 @@ function exitToMenu() {
     document.getElementById('gameCanvas').classList.add('hidden');
     document.querySelector('.game-info').classList.add('hidden');
     document.querySelector('.instructions').classList.add('hidden');
-}
-
-// Función principal del juego
-function gameLoop() {
-    if (!gameRunning) return;
-
-    // Aumentar tiempo de juego y dificultad
-    gameTime++;
-    
-    // Aumentar nivel de dificultad cada cierto tiempo
-    const newDifficultyLevel = Math.floor(gameTime / DIFFICULTY_INCREASE_INTERVAL) + 1;
-    if (newDifficultyLevel > difficultyLevel) {
-        difficultyLevel = newDifficultyLevel;
-        // Opcional: puedes agregar un sonido o efecto visual cuando aumenta la dificultad
-        console.log(`¡Dificultad aumentada al nivel ${difficultyLevel}!`);
-    }
-
-    // Limpiar canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Dibujar fondo (océano y arena)
-    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    gradient.addColorStop(0, '#87CEEB');
-    gradient.addColorStop(0.7, '#87CEEB');
-    gradient.addColorStop(0.7, '#8B4513');
-    gradient.addColorStop(1, '#8B4513');
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Dibujar patrón de arena (checkered)
-    ctx.fillStyle = '#A0522D';
-    const checkSize = 20;
-    for (let y = canvas.height * 0.7; y < canvas.height; y += checkSize) {
-        for (let x = 0; x < canvas.width; x += checkSize * 2) {
-            if (Math.floor(y / checkSize) % 2 === 0) {
-                ctx.fillRect(x, y, checkSize, checkSize);
-            } else {
-                ctx.fillRect(x + checkSize, y, checkSize, checkSize);
-            }
-        }
-    }
-
-    // Spawnear objetos con probabilidad que aumenta con la dificultad
-    // Probabilidad base: 4%, aumenta hasta ~8% en niveles altos
-    const spawnProbability = Math.min(0.08, 0.04 + (difficultyLevel - 1) * 0.005);
-    if (Math.random() < spawnProbability) {
-        spawnObject();
-    }
-
-    // Actualizar y dibujar gatito
-    cat.update();
-    cat.draw();
-
-    // Actualizar y dibujar objetos
-    for (let i = fallingObjects.length - 1; i >= 0; i--) {
-        const obj = fallingObjects[i];
-        obj.update();
-        obj.draw();
-
-        // Verificar colisión con gatito
-        if (checkCollision(cat, obj)) {
-            if (obj.isGood) {
-                updateScore(5);
-            } else {
-                updateScore(-15);
-            }
-            fallingObjects.splice(i, 1);
-            continue;
-        }
-
-        // Si el objeto sale de pantalla
-        if (obj.isOffScreen()) {
-            if (obj.isGood) {
-                missed++;
-                document.getElementById('missed').textContent = missed;
-            }
-            fallingObjects.splice(i, 1);
-        }
-    }
-
-    requestAnimationFrame(gameLoop);
+    hideMobileControls();
 }
 
 // <-- añadir variable y funciones para high score -->
