@@ -1,0 +1,233 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family:'Comic Sans MS', cursive, sans-serif;
+    background: linear-gradient(135deg, #85c3e5 0%, #ac7bde 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    font-weight: lighter;
+}
+
+.container {
+    background: rgb(177, 177, 177);
+    border-radius: 20px;
+    padding: 15px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    max-width: 80%;
+    width: 100%;
+    position: relative;
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 10px;
+    font-size: 1.8em;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.game-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding: 8px;
+    background: #d0f7d8e7;
+    border-radius: 10px;
+}
+
+.game-info.hidden {
+    display: none;
+}
+
+.score-display {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #2ecc71;
+}
+
+.missed-display {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #e74c3c;
+}
+
+#gameCanvas {
+    display: block;
+    margin: 0 auto;
+    border: 2px solid #333;
+    border-radius: 10px;
+    background: linear-gradient(to bottom, #87CEEB 0%, #87CEEB 70%, #8B4513 70%, #8B4513 100%);
+    cursor: pointer;
+}
+
+.game-over {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    z-index: 1000;
+    max-width: 80%;
+    width: 90%;
+    align-items: stretch;
+}
+
+.game-over h2 {
+    color: #e74c3c;
+    margin-bottom: 20px;
+    font-size: 2em;
+}
+
+.game-over p {
+    color: #555;
+    font-size: 1.2em;
+    line-height: 1.6;
+    margin-bottom: 30px;
+    font-style: italic;
+}
+
+.game-over button {
+    background: #3498db;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 1.2em;
+    border-radius: 10px;
+    cursor: pointer;
+    transition:  0.3s;
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+}
+
+.game-over button:hover {
+    background: #2980b9;
+}
+
+.hidden {
+    display: none;
+}
+
+.instructions {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #FEFBEA;
+    border-radius: 10px;
+    text-align: center;
+    color: #2e7d32;
+}
+
+.instructions p {
+    margin: 0;
+    font-size: 0.85em;
+}
+
+.start-screen {
+    background: #FEFBEA;
+    padding: 25px;
+    border-radius: 15px;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.start-screen h1 {
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    color: #0e8f39f9;
+    margin-bottom: 20px;
+    font-size: 1.8em;
+    text-shadow:#d6d5a3 -2px 1px 3px;
+}
+
+.start-screen .objective {
+    background: #d0f7d8e7;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.start-screen .objective h3 {
+    color: #333;
+    margin-bottom: 15px;
+    font-size: 1.3em;
+    text-align: center;
+}
+
+.start-screen .objective p {
+    color: #555;
+    margin-bottom: 15px;
+    line-height: 1.6;
+    font-size: 1em;
+}
+
+.start-screen .examples {
+    margin: 15px 0;
+}
+
+.start-screen .good-examples {
+    background: #e8f5e9;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.start-screen .good-examples p {
+    margin: 5px 0;
+    color: #2e7d32;
+    font-size: 0.9em;
+}
+
+.start-screen .bad-examples {
+    background: #ffebee;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.start-screen .bad-examples p {
+    margin: 5px 0;
+    color: #c62828;
+    font-size: 0.9em;
+}
+
+.start-screen .warning {
+    background: #fff3cd;
+    padding: 10px;
+    border-radius: 8px;
+    color: #856404;
+    font-weight: bold;
+    margin-top: 15px;
+    text-align: center;
+}
+
+.start-screen button {
+    background: #4eb96c;
+    color: white;
+    border: none;
+    padding: 15px 40px;
+    font-size: 1.2em;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+    font-weight: bold;
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+}
+
+.start-screen button:hover {
+    background: #259c56fc;
+}
+
+.highScore-display {
+    font-weight: bold;
+    color: #c4ac12;
+}
+

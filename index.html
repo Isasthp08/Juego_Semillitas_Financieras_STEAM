@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semillitas Financieras - Educación Financiera</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container start-screen">
+        <h1>🌱 Semillitas Financieras</h1>
+        <div class="game-info hidden">
+            <div class="score-display">
+                <span>$<span id="score">0</span></span>
+            </div>
+            <div class="missed-display">
+                <span>Perdidos: <span id="missed">0</span></span>
+            </div>
+            <div class="highScore-display">
+                <span>Mejor Puntaje: $<span id="highScore">0</span></span>
+            </div>
+        </div>
+        <div id="startScreen" class="start-screen">
+            <div class="objective">
+                <h3>Objetivo del Juego</h3>
+                <p><strong>Atrapa las deudas buenas</strong> (inversiones) y <strong>esquiva las deudas malas</strong> (gastos innecesarios).</p>
+                <h3>Reglas del Juego</h3>
+                <p>Mueve las flechas <strong>← →</strong> para atrapar inversiones y evitar gastos innecesarios.</p>
+                <div class="examples">
+                    <div class="good-examples">
+                        <p><strong>✅ Deudas Buenas (+$5):</strong></p>
+                        <p>💻 Computadora | 📚 Libro | 🏠 Casa | 💼 Maletín</p>
+                    </div>
+                    <div class="bad-examples">
+                        <p><strong>❌ Deudas Malas (-$15):</strong></p>
+                        <p>🚗 Carro de Lujo | 🍬 Dulces | 🎮 Consola | 📱 Celular</p>
+                    </div>
+                </div>
+                <p class="warning">Si tus puntos llegan a $0, pierdes.</p>
+            </div>
+            <button onclick="startGame()">Comenzar Juego</button>
+        </div>
+        <canvas id="gameCanvas" class="hidden"></canvas>
+        <div id="gameOver" class="game-over hidden">
+            <h2>¡Has perdido!</h2>
+            <p>Las deudas buenas se consideran una inversión para el futuro, las deudas malas pierden su valor.</p>
+            <button onclick="restartGame()">Jugar de Nuevo</button>
+            <button onclick="exitToMenu()">Salir del Juego</button>
+        </div>
+        <div class="instructions hidden">
+            <p><strong>Instrucciones:</strong> Mueve el gatito con las flechas ← → para atrapar objetos buenos (inversiones) y evitar los malos (deudas).</p>
+        </div>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>
+
