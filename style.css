@@ -237,7 +237,12 @@ h1 {
     gap: 18px;
     margin-top: 12px;
     z-index: 1200;
-    position: static; /* mostrar en el flujo debajo de las instrucciones */
+    position: static;
+}
+
+/* asegurar que la clase hidden oculte los controles */
+.mobile-controls.hidden {
+    display: none !important;
 }
 
 /* mantener solo ajuste responsive del canvas; no forzar .mobile-controls.visible por media query */

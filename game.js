@@ -358,15 +358,21 @@ function isTouchDevice() {
     return (('ontouchstart' in window) || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0);
 }
 
+// Mostrar sólo si es dispositivo táctil Y (pantalla pequeña o puntero coarse)
+function shouldShowMobileControls() {
+    const isTouch = isTouchDevice();
+    const isNarrow = window.matchMedia('(max-width: 820px)').matches;
+    const coarsePointer = window.matchMedia('(pointer: coarse)').matches;
+    return isTouch && (isNarrow || coarsePointer);
+}
+
 function showMobileControlsUnderInstructions() {
-    if (!isTouchDevice() || !mobileControls) return;
+    if (!shouldShowMobileControls() || !mobileControls) return; // mostrar sólo en móviles reales / pantallas pequeñas
     const instructionsEl = document.querySelector('.instructions');
     if (instructionsEl) {
-        // insertar justo después del elemento de instrucciones
         instructionsEl.insertAdjacentElement('afterend', mobileControls);
         mobileControls.classList.remove('hidden');
     } else {
-        // fallback: si no existe instrucciones, colocarlos al final del container
         const container = document.querySelector('.container');
         if (container) container.appendChild(mobileControls);
         mobileControls.classList.remove('hidden');
@@ -378,14 +384,22 @@ function hideMobileControls() {
     mobileControls.classList.add('hidden');
 }
 
+// ocultar/mostrar dinámicamente si cambia el tamaño o la orientación
+window.addEventListener('resize', () => {
+    if (!shouldShowMobileControls()) hideMobileControls();
+});
+window.addEventListener('orientationchange', () => {
+    if (!shouldShowMobileControls()) hideMobileControls();
+});
+
 // Mostrar controles móviles si el dispositivo es táctil (opcional)
-function detectAndShowMobileControls() {
-    if ('ontouchstart' in window && mobileControls) {
-        // quitar la clase hidden para que CSS los muestre en mobile
-        mobileControls.classList.remove('hidden');
-    }
-}
-detectAndShowMobileControls();
+// function detectAndShowMobileControls() {
+//     if ('ontouchstart' in window && mobileControls) {
+//         // quitar la clase hidden para que CSS los muestre en mobile
+//         mobileControls.classList.remove('hidden');
+//     }
+// }
+// detectAndShowMobileControls();
 
 // Función para generar un objeto
 function spawnObject() {
@@ -530,4 +544,108 @@ function saveHighScore() {
 loadHighScore();
 
 // No iniciar el juego automáticamente - esperar a que el usuario haga clic en "Comenzar Juego"
+
+// Debug: asegurar binding del botón de inicio y logs
+(function attachStartDebug() {
+    try {
+        const startBtn = document.querySelector('#startScreen button');
+        if (startBtn) {
+            // evitar dobles bindings
+            startBtn.removeEventListener('click', window.__sf_start_click__);
+            window.__sf_start_click__ = function () {
+                console.log('DEBUG: start button clicked');
+                try { startGame(); } catch (err) { console.error('ERROR en startGame:', err); }
+            };
+            startBtn.addEventListener('click', window.__sf_start_click__);
+            console.log('DEBUG: start button listener attached');
+        } else {
+            console.warn('DEBUG: start button no encontrado');
+        }
+    } catch (e) {
+        console.error('DEBUG attachStartDebug error:', e);
+    }
+})();
+
+// Fallback de gameLoop — añade esto si falta la función principal del juego.
+// Intenta llamar a funciones comunes si existen y arranca un loop básico.
+function gameLoop() {
+    try {
+        // avanzar tiempo y ajustar dificultad
+        gameTime++;
+        if (gameTime > 0 && gameTime % DIFFICULTY_INCREASE_INTERVAL === 0) {
+            difficultyLevel++;
+        }
+
+        // generar objetos periódicamente (más rápido con la dificultad)
+        const spawnEvery = Math.max(30, 100 - difficultyLevel * 8); // frames
+        if (gameTime % spawnEvery === 0) spawnObject();
+
+        // actualizar jugador
+        cat.update();
+
+        // actualizar objetos y manejar colisiones / offscreen
+        for (let i = fallingObjects.length - 1; i >= 0; i--) {
+            const obj = fallingObjects[i];
+            obj.update();
+
+            // colisión con el gatito
+            if (checkCollision(cat, obj)) {
+                if (obj.isGood) {
+                    updateScore(5);
+                } else {
+                    updateScore(-15);
+                }
+                fallingObjects.splice(i, 1);
+                continue;
+            }
+
+            // objeto fuera de pantalla
+            if (obj.isOffScreen()) {
+                // si era bueno, cuenta como perdido
+                if (obj.isGood) {
+                    missed++;
+                    document.getElementById('missed').textContent = missed;
+                    if (missed >= 3) {
+                        gameOver();
+                        return; // salir del loop
+                    }
+                }
+                fallingObjects.splice(i, 1);
+            }
+        }
+
+        // dibujado
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // fondo: cielo y suelo
+        ctx.fillStyle = '#87CEEB';
+        ctx.fillRect(0, 0, canvas.width, canvas.height * 0.7);
+        ctx.fillStyle = '#8B4513';
+        ctx.fillRect(0, canvas.height * 0.7, canvas.width, canvas.height * 0.3);
+
+        // dibujar objetos
+        for (const obj of fallingObjects) obj.draw();
+
+        // dibujar gatito
+        cat.draw();
+
+        // actualizar HUD (por si algo cambia fuera de updateScore)
+        const scoreEl = document.getElementById('score');
+        if (scoreEl) scoreEl.textContent = score;
+        const missedEl = document.getElementById('missed');
+        if (missedEl) missedEl.textContent = missed;
+    } catch (err) {
+        console.error('ERROR en gameLoop:', err);
+        gameRunning = false;
+        return;
+    }
+
+    // seguir el loop sólo si el juego está activo
+    if (gameRunning) {
+        requestAnimationFrame(gameLoop);
+    }
+}
+
+// Debug: informar si startGame llama correctamente a gameLoop
+console.log('DEBUG: fallback gameLoop definido. typeof gameLoop =', typeof gameLoop);
 
