@@ -488,7 +488,7 @@ function startGame() {
     document.querySelector('.game-info').classList.remove('hidden');
     document.querySelector('.instructions').classList.remove('hidden');
 
-    // mostrar controles táctiles solo en dispositivos táctiles y colocarlos debajo de las instrucciones
+    resizeCanvasToDisplaySize(); // <-- aseguro tamaño correcto antes de dibujar
     showMobileControlsUnderInstructions();
     gameLoop();
 }
@@ -508,6 +508,7 @@ function restartGame() {
     document.getElementById('missed').textContent = missed;
     document.getElementById('gameOver').classList.add('hidden');
     document.querySelector('.instructions').classList.remove('hidden');
+    resizeCanvasToDisplaySize(); // <-- asegurar tamaño
     showMobileControlsUnderInstructions();
     gameLoop();
 }
@@ -570,6 +571,8 @@ loadHighScore();
 // Intenta llamar a funciones comunes si existen y arranca un loop básico.
 function gameLoop() {
     try {
+        resizeCanvasToDisplaySize(); // mantiene canvas dentro del contenedor si cambió el layout
+
         // avanzar tiempo y ajustar dificultad
         gameTime++;
         if (gameTime > 0 && gameTime % DIFFICULTY_INCREASE_INTERVAL === 0) {
@@ -639,13 +642,43 @@ function gameLoop() {
         gameRunning = false;
         return;
     }
-
-    // seguir el loop sólo si el juego está activo
-    if (gameRunning) {
-        requestAnimationFrame(gameLoop);
-    }
+    if (gameRunning) requestAnimationFrame(gameLoop);
 }
 
 // Debug: informar si startGame llama correctamente a gameLoop
 console.log('DEBUG: fallback gameLoop definido. typeof gameLoop =', typeof gameLoop);
+
+// Ajusta el tamaño interno del canvas para que no se "salga" y para mantener buena resolución
+function resizeCanvasToDisplaySize() {
+    if (!canvas) return;
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    // si el rect.width es 0 (oculto) evita cambios
+    if (rect.width === 0 || rect.height === 0) return;
+
+    const displayWidth = Math.round(rect.width);
+    const displayHeight = Math.round(rect.height);
+
+    const needResize = canvas.width !== displayWidth * dpr || canvas.height !== displayHeight * dpr;
+    if (needResize) {
+        canvas.width = displayWidth * dpr;
+        canvas.height = displayHeight * dpr;
+        // escalar el contexto para dibujar en CSS pixels
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+}
+
+// Llamar al ajustar ventana / orientación
+window.addEventListener('resize', () => {
+    resizeCanvasToDisplaySize();
+    // ocultar controles si la condición cambia
+    if (!shouldShowMobileControls()) hideMobileControls();
+});
+window.addEventListener('orientationchange', () => {
+    // un pequeño timeout para permitir que el layout se estabilice
+    setTimeout(resizeCanvasToDisplaySize, 120);
+});
+
+// llamar al inicio para ajustar tamaño si el canvas está visible
+resizeCanvasToDisplaySize();
 
