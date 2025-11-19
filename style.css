@@ -5,7 +5,7 @@
 }
 
 body {
-    font-family:'Comic Sans MS', cursive, sans-serif;
+    font-family:Verdana, Geneva, Tahoma, sans-serif;
     background: linear-gradient(135deg, #85c3e5 0%, #ac7bde 100%);
     min-height: 100vh;
     display: flex;
@@ -65,6 +65,11 @@ h1 {
     height: auto;       /* mantener proporción */
     max-height: 72vh;   /* no sobrepasar la pantalla del móvil */
     box-sizing: border-box;
+    border-image: initial;
+    margin: 0px auto;
+    border-radius: 5%;
+    border-style: solid;
+    border-width: 2px;
 }
 
 .game-over {
@@ -106,7 +111,7 @@ h1 {
     border-radius: 10px;
     cursor: pointer;
     transition:  0.3s;
-    font-family: 'Comic Sans MS', cursive, sans-serif;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
 .game-over button:hover {
@@ -140,7 +145,7 @@ h1 {
 }
 
 .start-screen h1 {
-    font-family: 'Comic Sans MS', cursive, sans-serif;
+    font-family: 'Verdana', Geneva, Tahoma, sans-serif;
     color: #0e8f39f9;
     margin-bottom: 20px;
     font-size: 1.8em;
@@ -219,7 +224,7 @@ h1 {
     cursor: pointer;
     transition: 0.3s;
     font-weight: bold;
-    font-family: 'Comic Sans MS', cursive, sans-serif;
+    font-family:Verdana, Geneva, Tahoma, sans-serif;
 }
 
 .start-screen button:hover {

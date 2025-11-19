@@ -488,7 +488,7 @@ function startGame() {
     document.querySelector('.game-info').classList.remove('hidden');
     document.querySelector('.instructions').classList.remove('hidden');
 
-    resizeCanvasToDisplaySize(); // <-- aseguro tamaño correcto antes de dibujar
+    // mostrar controles táctiles solo en dispositivos táctiles y colocarlos debajo de las instrucciones
     showMobileControlsUnderInstructions();
     gameLoop();
 }
@@ -508,7 +508,6 @@ function restartGame() {
     document.getElementById('missed').textContent = missed;
     document.getElementById('gameOver').classList.add('hidden');
     document.querySelector('.instructions').classList.remove('hidden');
-    resizeCanvasToDisplaySize(); // <-- asegurar tamaño
     showMobileControlsUnderInstructions();
     gameLoop();
 }
@@ -571,8 +570,6 @@ loadHighScore();
 // Intenta llamar a funciones comunes si existen y arranca un loop básico.
 function gameLoop() {
     try {
-        resizeCanvasToDisplaySize(); // mantiene canvas dentro del contenedor si cambió el layout
-
         // avanzar tiempo y ajustar dificultad
         gameTime++;
         if (gameTime > 0 && gameTime % DIFFICULTY_INCREASE_INTERVAL === 0) {
@@ -642,43 +639,45 @@ function gameLoop() {
         gameRunning = false;
         return;
     }
-    if (gameRunning) requestAnimationFrame(gameLoop);
+
+    // seguir el loop sólo si el juego está activo
+    if (gameRunning) {
+        requestAnimationFrame(gameLoop);
+    }
 }
 
 // Debug: informar si startGame llama correctamente a gameLoop
 console.log('DEBUG: fallback gameLoop definido. typeof gameLoop =', typeof gameLoop);
 
-// Ajusta el tamaño interno del canvas para que no se "salga" y para mantener buena resolución
-function resizeCanvasToDisplaySize() {
-    if (!canvas) return;
-    const dpr = window.devicePixelRatio || 1;
-    const rect = canvas.getBoundingClientRect();
-    // si el rect.width es 0 (oculto) evita cambios
-    if (rect.width === 0 || rect.height === 0) return;
+// Mostrar el canvas y la barra de información (sin iniciar el juego)
+function renderInitialFrame() {
+    try {
+        const canvasEl = document.getElementById('gameCanvas');
+        // NO mostrar la barra de información en la pantalla inicial:
+        // const gameInfo = document.querySelector('.game-info');
+        if (canvasEl) canvasEl.classList.remove('hidden');
 
-    const displayWidth = Math.round(rect.width);
-    const displayHeight = Math.round(rect.height);
+        // ajustar tamaño si existe la función de resize (mejora en móviles)
+        if (typeof resizeCanvasToDisplaySize === 'function') resizeCanvasToDisplaySize();
 
-    const needResize = canvas.width !== displayWidth * dpr || canvas.height !== displayHeight * dpr;
-    if (needResize) {
-        canvas.width = displayWidth * dpr;
-        canvas.height = displayHeight * dpr;
-        // escalar el contexto para dibujar en CSS pixels
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        // Dibujar fondo y suelo usando las dimensiones actuales del canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#87CEEB'; // cielo
+        ctx.fillRect(0, 0, canvas.width, canvas.height * 0.7);
+        ctx.fillStyle = '#8B4513'; // suelo
+        ctx.fillRect(0, canvas.height * 0.7, canvas.width, canvas.height * 0.3);
+
+        // Dibujar gatito estático en la pantalla inicial (sin iniciar el juego)
+        if (typeof cat !== 'undefined' && cat && typeof cat.draw === 'function') {
+            cat.draw();
+        }
+
+        // NO mostrar controles móviles aquí; se mostrarán al iniciar el juego con showMobileControlsUnderInstructions()
+    } catch (err) {
+        console.error('renderInitialFrame error:', err);
     }
 }
 
-// Llamar al ajustar ventana / orientación
-window.addEventListener('resize', () => {
-    resizeCanvasToDisplaySize();
-    // ocultar controles si la condición cambia
-    if (!shouldShowMobileControls()) hideMobileControls();
-});
-window.addEventListener('orientationchange', () => {
-    // un pequeño timeout para permitir que el layout se estabilice
-    setTimeout(resizeCanvasToDisplaySize, 120);
-});
-
-// llamar al inicio para ajustar tamaño si el canvas está visible
-resizeCanvasToDisplaySize();
+// Llamar al render inicial una vez que cargue el script / datos
+renderInitialFrame();
 
